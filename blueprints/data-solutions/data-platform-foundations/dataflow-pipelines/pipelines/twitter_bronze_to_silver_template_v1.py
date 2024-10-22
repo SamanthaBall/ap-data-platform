@@ -1,28 +1,10 @@
 import apache_beam as beam
-from utils.flatten import flatten
+from utils.cleaning.clean import drop_irrelevant_fields, clean_text, filter_retweets
+from utils.enrichment.enrich import enrich_location, enrich_user_profile
+from utils.flattening.flatten import flatten
+from utils.transformation.transform import transform_tweet
 
 
-def clean_text(tweet):
-    # Text cleaning logic, like removing URLs, special characters, etc.
-    pass
-
-def filter_retweets(tweet):
-    # Only allow non-retweets
-    return not tweet['is_retweet']
-
-def enrich_location(tweet):
-    # Add geolocation data to the tweet
-    pass
-
-def enrich_user_profile(tweet):
-    # Add additional user profile information (e.g., followers count, verified status)
-    pass
-
-def transform_tweet(tweet):
-    # Apply final formatting, e.g., flattening nested fields
-    pass
-
-# Define the pipeline
 with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p:
     
     # Step 1: Ingest data
@@ -33,6 +15,7 @@ with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p
         tweets 
         | 'DropDuplicatesById' >> beam.Distinct(key=lambda x: x['id'])
         | 'FlattenJson' >> beam.ParDo(flatten())
+        | 'DropIrrelevantFields' >> beam.Map(drop_irrelevant_fields)
         | 'Clean Text' >> beam.Map(clean_text)
         | 'Filter Retweets' >> beam.Filter(filter_retweets)
     )
