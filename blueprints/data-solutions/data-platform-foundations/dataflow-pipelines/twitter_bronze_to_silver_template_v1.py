@@ -1,4 +1,6 @@
 import apache_beam as beam
+from utils.flatten import flatten
+
 
 def clean_text(tweet):
     # Text cleaning logic, like removing URLs, special characters, etc.
@@ -29,6 +31,8 @@ with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p
     # Group 1: Data Cleaning
     cleaned_tweets = (
         tweets 
+        | 'DropDuplicatesById' >> beam.Distinct(key=lambda x: x['id'])
+        | 'FlattenJson' >> beam.ParDo(flatten())
         | 'Clean Text' >> beam.Map(clean_text)
         | 'Filter Retweets' >> beam.Filter(filter_retweets)
     )
