@@ -1,6 +1,6 @@
 import apache_beam as beam
 from utils.cleaning.clean import drop_irrelevant_fields, clean_text, filter_retweets
-from utils.enrichment.enrich import enrich_location, enrich_user_profile
+from utils.enrichment.enrich import enrich_user_profile
 from utils.enrichment.geocode import FuzzyMatchLocation, GeocodeLocation
 from utils.flattening.flatten import flatten
 from utils.transformation.transform import transform_tweet
