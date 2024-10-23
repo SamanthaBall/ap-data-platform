@@ -1,6 +1,7 @@
 venv/*
 **/.venv/*
 */venv/*
+**/.env
 **/.python-version
 **/.terraform
 **/terraform.tfstate*
