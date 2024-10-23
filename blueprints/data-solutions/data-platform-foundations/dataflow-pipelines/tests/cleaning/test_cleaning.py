@@ -2,6 +2,8 @@ import pandas as pd
 import pytest
 from utils.cleaning.clean import drop_irrelevant_fields
 
+
+
 def test_drop_irrelevant_fields():
     # Setup
     data = pd.DataFrame({

@@ -90,11 +90,19 @@ class GeocodeLocation(beam.DoFn):
             return
 
         try:
-            loc = self.geolocator.geocode(location)
+            loc = self.geolocator.geocode(location) # note it would be better to batch requests
             country = loc.raw['components'].get('country') if loc else np.nan
             yield {**element, 'country': country, 'matched': True}
         except Exception as e:
             logging.error(f"Error geocoding location '{location}': {e}")
             yield {**element, 'country': np.nan, 'matched': False}
+
+
+
+# Note for geocoding:
+# - try and get as many done by fuzzy matching
+# - fuzzy matching can be slow?
+# - optimize fuzzy matching
+# - rate limiting needs to be taken into account for geocoding
 
 
