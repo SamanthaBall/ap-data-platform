@@ -11,7 +11,7 @@ fields_to_remove = ['type', 'entities', 'extendedEntities', 'twitterUrl', 'autho
 with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p:
     
     # Step 1: Ingest data
-    tweets = p | 'ReadFromSource' >> beam.io.ReadFromText('path_to_twitter_data.json')
+    tweets = p | 'ReadFromSource' >> beam.io.ReadFromText('../data/dataset_tweet-scraper_2024-03-04_15-52-13-507.json')
 
     # Group 1: Data Cleaning
     cleaned_tweets = (
@@ -38,4 +38,4 @@ with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p
     )
 
     # Step 4: Output the data
-    transformed_tweets | 'WriteToSink' >> beam.io.WriteToText('path_to_output_data')
+    transformed_tweets | 'WriteToSink' >> beam.io.WriteToText('../data/output.json')
