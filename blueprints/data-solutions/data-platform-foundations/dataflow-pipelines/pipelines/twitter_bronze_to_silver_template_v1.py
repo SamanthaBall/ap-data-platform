@@ -1,10 +1,12 @@
 import apache_beam as beam
-from utils.cleaning.clean import drop_irrelevant_fields, clean_text, filter_retweets
+from utils.cleaning.clean import DropIrrelevantFields, clean_text, filter_retweets
 from utils.enrichment.enrich import enrich_user_profile
 from utils.enrichment.geocode import FuzzyMatchLocation, GeocodeLocation
 from utils.flattening.flatten import flatten
 from utils.transformation.transform import transform_tweet
 
+
+fields_to_remove = ['type', 'entities', 'extendedEntities', 'twitterUrl', 'author', 'media']
 
 with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p:
     
@@ -16,7 +18,7 @@ with beam.Pipeline(options=beam.options.pipeline_options.PipelineOptions()) as p
         tweets 
         | 'DropDuplicatesById' >> beam.Distinct(key=lambda x: x['id'])
         | 'FlattenJson' >> beam.ParDo(flatten())
-        | 'DropIrrelevantFields' >> beam.Map(drop_irrelevant_fields)
+        | 'DropIrrelevantFields' >>  beam.ParDo(DropIrrelevantFields(fields_to_remove))
         | 'Clean Text' >> beam.Map(clean_text)
         | 'Filter Retweets' >> beam.Filter(filter_retweets)
     )

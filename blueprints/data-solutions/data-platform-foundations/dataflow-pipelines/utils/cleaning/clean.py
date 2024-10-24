@@ -1,8 +1,13 @@
+import apache_beam as beam
+
+class DropIrrelevantFields(beam.DoFn):
+    def __init__(self, fields_to_remove):
+        self.fields_to_remove = fields_to_remove
+
+    def process(self, element):
+        yield {key: value for key, value in element.items() if key not in self.fields_to_remove}
 
 
-def drop_irrelevant_fields(element):
-    fields_to_remove = ['type', 'entities', 'extendedEntities', 'twitterUrl', 'author', 'media']
-    return {key: value for key, value in element.items() if key not in fields_to_remove}
 
 
 def clean_text(tweet):
