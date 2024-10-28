@@ -64,7 +64,7 @@ locals {
 
 # Project
 
-module "dwh-lnd-project" {
+module "dwh-bronze-project" {
   source          = "../../../modules/project"
   parent          = var.project_config.parent
   billing_account = var.project_config.billing_account_id
@@ -72,8 +72,8 @@ module "dwh-lnd-project" {
   prefix          = local.use_projects ? null : var.prefix
   name = (
     local.use_projects
-    ? var.project_config.project_ids.dwh-lnd
-    : "${var.project_config.project_ids.dwh-lnd}${local.project_suffix}"
+    ? var.project_config.project_ids.dwh-bronze
+    : "${var.project_config.project_ids.dwh-bronze}${local.project_suffix}"
   )
   iam                   = local.use_projects ? {} : local.lnd_iam_auth
   iam_bindings_additive = !local.use_projects ? {} : local.lnd_iam_additive
@@ -84,7 +84,7 @@ module "dwh-lnd-project" {
   }
 }
 
-module "dwh-cur-project" {
+module "dwh-silver-project" {
   source          = "../../../modules/project"
   parent          = var.project_config.parent
   billing_account = var.project_config.billing_account_id
@@ -92,8 +92,28 @@ module "dwh-cur-project" {
   prefix          = local.use_projects ? null : var.prefix
   name = (
     local.use_projects
-    ? var.project_config.project_ids.dwh-cur
-    : "${var.project_config.project_ids.dwh-cur}${local.project_suffix}"
+    ? var.project_config.project_ids.dwh-silver
+    : "${var.project_config.project_ids.dwh-silver}${local.project_suffix}"
+  )
+  iam                   = local.use_projects ? {} : local.dwh_iam_auth
+  iam_bindings_additive = !local.use_projects ? {} : local.dwh_iam_additive
+  services              = local.dwh_services
+  service_encryption_key_ids = {
+    "bigquery.googleapis.com" = compact([var.service_encryption_keys.bq])
+    "storage.googleapis.com"  = compact([var.service_encryption_keys.storage])
+  }
+}
+
+module "dwh-gold-project" {
+  source          = "../../../modules/project"
+  parent          = var.project_config.parent
+  billing_account = var.project_config.billing_account_id
+  project_create  = var.project_config.project_create
+  prefix          = local.use_projects ? null : var.prefix
+  name = (
+    local.use_projects
+    ? var.project_config.project_ids.dwh-gold
+    : "${var.project_config.project_ids.dwh-gold}${local.project_suffix}"
   )
   iam                   = local.use_projects ? {} : local.dwh_iam_auth
   iam_bindings_additive = !local.use_projects ? {} : local.dwh_iam_additive
@@ -124,18 +144,28 @@ module "dwh-conf-project" {
   }
 }
 
-module "dwh-lnd-bq-0" {
+
+# bigquery not needed for the bronze layer? (raw)
+# module "dwh-bronze-bq-0" {
+#   source         = "../../../modules/bigquery-dataset"
+#   project_id     = module.dwh-lnd-project.project_id
+#   id             = "${replace(var.prefix, "-", "_")}_dwh_lnd_bq_0"
+#   location       = var.location
+#   encryption_key = var.service_encryption_keys.bq
+# }
+
+module "dwh-silver-bq-0" {
   source         = "../../../modules/bigquery-dataset"
-  project_id     = module.dwh-lnd-project.project_id
-  id             = "${replace(var.prefix, "-", "_")}_dwh_lnd_bq_0"
+  project_id     = module.dwh-cur-project.project_id
+  id             = "${replace(var.prefix, "-", "_")}_dwh_silver_bq_0"
   location       = var.location
   encryption_key = var.service_encryption_keys.bq
 }
 
-module "dwh-cur-bq-0" {
+module "dwh-gold-bq-0" {
   source         = "../../../modules/bigquery-dataset"
   project_id     = module.dwh-cur-project.project_id
-  id             = "${replace(var.prefix, "-", "_")}_dwh_cur_bq_0"
+  id             = "${replace(var.prefix, "-", "_")}_dwh_gold_bq_0"
   location       = var.location
   encryption_key = var.service_encryption_keys.bq
 }
@@ -148,27 +178,41 @@ module "dwh-conf-bq-0" {
   encryption_key = var.service_encryption_keys.bq
 }
 
-module "dwh-lnd-cs-0" {
+module "dwh-bronze-gcs-0" {
   source         = "../../../modules/gcs"
-  project_id     = module.dwh-lnd-project.project_id
+  project_id     = module.dwh-bronze-project.project_id
   prefix         = var.prefix
-  name           = "dwh-lnd-cs-0"
+  name           = "dwh-bronze"
   location       = var.location
-  storage_class  = "MULTI_REGIONAL"
+  storage_class  = "STANDARD"
   encryption_key = var.service_encryption_keys.storage
   force_destroy  = !var.deletion_protection
 }
 
-module "dwh-cur-cs-0" {
+module "dwh-silver-cs-0" {
   source         = "../../../modules/gcs"
-  project_id     = module.dwh-cur-project.project_id
+  project_id     = module.dwh-silver-project.project_id
   prefix         = var.prefix
-  name           = "dwh-cur-cs-0"
+  name           = "dwh-silver"
   location       = var.location
-  storage_class  = "MULTI_REGIONAL"
+  storage_class  = "STANDARD"
   encryption_key = var.service_encryption_keys.storage
   force_destroy  = !var.deletion_protection
 }
+
+
+module "dwh-gold-cs-0" {
+  source         = "../../../modules/gcs"
+  project_id     = module.dwh-gold-project.project_id
+  prefix         = var.prefix
+  name           = "dwh-gold"
+  location       = var.location
+  storage_class  = "STANDARD"
+  encryption_key = var.service_encryption_keys.storage
+  force_destroy  = !var.deletion_protection
+}
+
+
 
 module "dwh-conf-cs-0" {
   source         = "../../../modules/gcs"
@@ -176,7 +220,7 @@ module "dwh-conf-cs-0" {
   prefix         = var.prefix
   name           = "dwh-conf-cs-0"
   location       = var.location
-  storage_class  = "MULTI_REGIONAL"
+  storage_class  = "STANDARD"
   encryption_key = var.service_encryption_keys.storage
   force_destroy  = !var.deletion_protection
 }
