@@ -156,7 +156,7 @@ module "dwh-conf-project" {
 
 module "dwh-silver-bq-0" {
   source         = "../../../modules/bigquery-dataset"
-  project_id     = module.dwh-cur-project.project_id
+  project_id     = module.dwh-silver-project.project_id
   id             = "${replace(var.prefix, "-", "_")}_dwh_silver_bq_0"
   location       = var.location
   encryption_key = var.service_encryption_keys.bq
@@ -164,7 +164,7 @@ module "dwh-silver-bq-0" {
 
 module "dwh-gold-bq-0" {
   source         = "../../../modules/bigquery-dataset"
-  project_id     = module.dwh-cur-project.project_id
+  project_id     = module.dwh-gold-project.project_id
   id             = "${replace(var.prefix, "-", "_")}_dwh_gold_bq_0"
   location       = var.location
   encryption_key = var.service_encryption_keys.bq
@@ -189,7 +189,7 @@ module "dwh-bronze-gcs-0" {
   force_destroy  = !var.deletion_protection
 }
 
-module "dwh-silver-cs-0" {
+module "dwh-silver-gcs-0" {
   source         = "../../../modules/gcs"
   project_id     = module.dwh-silver-project.project_id
   prefix         = var.prefix
@@ -201,7 +201,7 @@ module "dwh-silver-cs-0" {
 }
 
 
-module "dwh-gold-cs-0" {
+module "dwh-gold-gcs-0" {
   source         = "../../../modules/gcs"
   project_id     = module.dwh-gold-project.project_id
   prefix         = var.prefix
@@ -214,7 +214,7 @@ module "dwh-gold-cs-0" {
 
 
 
-module "dwh-conf-cs-0" {
+module "dwh-conf-gcs-0" {
   source         = "../../../modules/gcs"
   project_id     = module.dwh-conf-project.project_id
   prefix         = var.prefix

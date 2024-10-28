@@ -32,10 +32,10 @@ locals {
     robots_cloudbuild = [
       "roles/storage.objectAdmin"
     ]
-    robots_composer = [
-      "roles/composer.ServiceAgentV2Ext",
-      "roles/storage.objectAdmin"
-    ]
+    # robots_composer = [
+    #   "roles/composer.ServiceAgentV2Ext",
+    #   "roles/storage.objectAdmin"
+    # ]
     sa_df_build = [
       "roles/cloudbuild.serviceAgent",
       "roles/storage.objectAdmin"
@@ -101,7 +101,7 @@ module "orch-project" {
   }
 }
 
-module "orch-cs-0" {
+module "orch-gcs-0" {
   source         = "../../../modules/gcs"
   project_id     = module.orch-project.project_id
   prefix         = var.prefix

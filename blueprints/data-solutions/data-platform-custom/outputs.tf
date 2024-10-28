@@ -17,8 +17,9 @@ output "bigquery-datasets" {
   description = "BigQuery datasets."
   value = {
     drop-bq-0             = module.drop-bq-0.dataset_id,
-    dwh-landing-bq-0      = module.dwh-lnd-bq-0.dataset_id,
-    dwh-curated-bq-0      = module.dwh-cur-bq-0.dataset_id,
+    #dwh-bronze-bq-0      = module.dwh-bronze-bq-0.dataset_id,
+    dwh-silver-bq-0      = module.dwh-silver-bq-0.dataset_id,
+    dwh-gold-bq-0      = module.dwh-gold-bq-0.dataset_id,
     dwh-confidential-bq-0 = module.dwh-conf-bq-0.dataset_id,
   }
 }
@@ -26,9 +27,9 @@ output "bigquery-datasets" {
 output "demo_commands" {
   description = "Demo commands. Relevant only if Composer is deployed."
   value = {
-    01 = "gsutil -i ${module.drop-sa-cs-0.email} cp demo/data/*.csv gs://${module.drop-cs-0.name}"
-    02 = try("gsutil -i ${module.orch-sa-cmp-0.email} cp demo/data/*.j* gs://${module.orch-cs-0.name}", "Composer not deployed.")
-    03 = try("gsutil -i ${module.orch-sa-cmp-0.email} cp demo/*.py ${google_composer_environment.orch-cmp-0[0].config[0].dag_gcs_prefix}/", "Composer not deployed")
+    01 = "gsutil -i ${module.drop-sa-cs-0.email} cp demo/data/*.csv gs://${module.drop-gcs-0.name}"
+    //02 = try("gsutil -i ${module.orch-sa-cmp-0.email} cp demo/data/*.j* gs://${module.orch-cs-0.name}", "Composer not deployed.")
+    //03 = try("gsutil -i ${module.orch-sa-cmp-0.email} cp demo/*.py ${google_composer_environment.orch-cmp-0[0].config[0].dag_gcs_prefix}/", "Composer not deployed")
     04 = <<EOT
     gcloud builds submit \
       --config=./demo/dataflow-csv2bq/cloudbuild.yaml \
@@ -39,7 +40,7 @@ output "demo_commands" {
       --impersonate-service-account=${module.orch-sa-df-build.email} \
       --substitutions=_TEMPLATE_IMAGE="${local.orch_docker_path}/csv2bq:latest",_TEMPLATE_PATH="gs://${module.orch-cs-df-template.name}/csv2bq.json",_DOCKER_DIR="./demo/dataflow-csv2bq"
     EOT
-    05 = try("Open ${google_composer_environment.orch-cmp-0[0].config[0].airflow_uri} and run uploaded DAG.", "Composer not deployed")
+    //05 = try("Open ${google_composer_environment.orch-cmp-0[0].config[0].airflow_uri} and run uploaded DAG.", "Composer not deployed")
     06 = <<EOT
            bq query --project_id=${module.dwh-conf-project.project_id} --use_legacy_sql=false 'SELECT * EXCEPT (name, surname) FROM `${module.dwh-conf-project.project_id}.${module.dwh-conf-bq-0.dataset_id}.customer_purchase` LIMIT 1000'"
          EOT
@@ -58,13 +59,14 @@ output "df_template" {
 output "gcs-buckets" {
   description = "GCS buckets."
   value = {
-    dwh-landing-cs-0      = module.dwh-lnd-cs-0.name,
-    dwh-curated-cs-0      = module.dwh-cur-cs-0.name,
-    dwh-confidential-cs-0 = module.dwh-conf-cs-0.name,
-    drop-cs-0             = module.drop-cs-0.name,
-    lod-cs-df             = module.load-cs-df-0.name,
-    orch-cs-0             = module.orch-cs-0.name,
-    transf-cs-df          = module.transf-cs-df-0.name,
+    dwh-bronze-cs-0      = module.dwh-bronze-gcs-0.name,
+    dwh-silver-cs-0      = module.dwh-silver-gcs-0.name,
+    dwh-gold-cs-0      = module.dwh-gold-gcs-0.name,
+    dwh-confidential-cs-0 = module.dwh-conf-gcs-0.name,
+    drop-cs-0             = module.drop-gcs-0.name,
+    load-cs-df             = module.load-gcs-df-0.name,
+    orch-cs-0             = module.orch-gcs-0.name,
+    transf-cs-df          = module.transf-gcs-df-0.name,
   }
 }
 
@@ -72,8 +74,9 @@ output "projects" {
   description = "GCP Projects information."
   value = {
     project_number = {
-      dwh-landing      = module.dwh-lnd-project.number,
-      dwh-curated      = module.dwh-cur-project.number,
+      dwh-bronze      = module.dwh-bronze-project.number,
+      dwh-silver      = module.dwh-silver-project.number,
+      dwh-gold        = module.dwh-gold-project.number,
       dwh-confidential = module.dwh-conf-project.number,
       exposure         = module.exp-project.number,
       dropoff          = module.drop-project.number,
@@ -82,8 +85,9 @@ output "projects" {
       transformation   = module.transf-project.number,
     }
     project_id = {
-      dwh-landing      = module.dwh-lnd-project.project_id,
-      dwh-curated      = module.dwh-cur-project.project_id,
+      dwh-bronze      = module.dwh-bronze-project.project_id,
+      dwh-silver      = module.dwh-silver-project.project_id,
+      dwh-gold        = module.dwh-gold-project.project_id,
       dwh-confidential = module.dwh-conf-project.project_id,
       exposure         = module.exp-project.project_id,
       dropoff          = module.drop-project.project_id,

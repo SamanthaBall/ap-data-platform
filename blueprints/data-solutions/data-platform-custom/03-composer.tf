@@ -55,17 +55,17 @@
 #     ) : "AIRFLOW_VAR_${k}" => v
 #   }
 # }
-# module "orch-sa-cmp-0" {
-#   source       = "../../../modules/iam-service-account"
-#   project_id   = module.orch-project.project_id
-#   prefix       = var.prefix
-#   name         = "orc-cmp-0"
-#   display_name = "Data platform Composer service account"
-#   iam = {
-#     "roles/iam.serviceAccountTokenCreator" = [local.groups_iam.data-engineers]
-#     "roles/iam.serviceAccountUser"         = [module.orch-sa-cmp-0.iam_email]
-#   }
-# }
+module "orch-sa-cmp-0" {
+  source       = "../../../modules/iam-service-account"
+  project_id   = module.orch-project.project_id
+  prefix       = var.prefix
+  name         = "orc-cmp-0"
+  display_name = "Data platform Composer service account"
+  iam = {
+    "roles/iam.serviceAccountTokenCreator" = [local.groups_iam.data-engineers]
+    "roles/iam.serviceAccountUser"         = [module.orch-sa-cmp-0.iam_email]
+  }
+}
 
 # resource "google_composer_environment" "orch-cmp-0" {
 #   count    = var.composer_config.disable_deployment == true ? 0 : 1

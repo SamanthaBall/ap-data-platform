@@ -83,7 +83,7 @@ module "drop-sa-cs-0" {
   }
 }
 
-module "drop-cs-0" {
+module "drop-gcs-0" {
   source         = "../../../modules/gcs"
   project_id     = module.drop-project.project_id
   prefix         = var.prefix

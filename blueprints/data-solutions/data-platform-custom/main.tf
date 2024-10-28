@@ -40,7 +40,7 @@ locals {
     data_engineers       = "group:${local.groups.data-engineers}"
     data_security        = "group:${local.groups.data-security}"
     robots_cloudbuild    = module.orch-project.service_agents.cloudbuild.iam_email
-    robots_composer      = module.orch-project.service_agents.composer.iam_email
+    #robots_composer      = module.orch-project.service_agents.composer.iam_email
     robots_dataflow_load = module.load-project.service_agents.dataflow.iam_email
     robots_dataflow_trf  = module.transf-project.service_agents.dataflow.iam_email
     sa_df_build          = module.orch-sa-df-build.iam_email
@@ -59,7 +59,7 @@ locals {
     load-robot-df       = module.load-project.service_agents.dataflow.iam_email
     load-sa-df-worker   = module.load-sa-df-0.iam_email
     orch-cloudservices  = module.orch-project.service_agents.cloudservices.iam_email
-    orch-robot-cs       = module.orch-project.service_agents.composer.iam_email
+    #orch-robot-cs       = module.orch-project.service_agents.composer.iam_email
     orch-robot-df       = module.orch-project.service_agents.dataflow.iam_email
     orch-robot-gke      = module.orch-project.service_agents.container-engine.iam_email
     transf-robot-df     = module.transf-project.service_agents.dataflow.iam_email

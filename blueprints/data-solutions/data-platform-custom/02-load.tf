@@ -90,7 +90,7 @@ module "load-sa-df-0" {
   }
 }
 
-module "load-cs-df-0" {
+module "load-gcs-df-0" {
   source         = "../../../modules/gcs"
   project_id     = module.load-project.project_id
   prefix         = var.prefix

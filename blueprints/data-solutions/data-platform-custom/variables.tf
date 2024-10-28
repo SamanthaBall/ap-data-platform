@@ -188,8 +188,9 @@ variable "project_config" {
       load     = string
       orc      = string
       trf      = string
-      dwh-lnd  = string
-      dwh-cur  = string
+      dwh-bronze  = string
+      dwh-silver  = string
+      dwh-gold  = string
       dwh-conf = string
       common   = string
       exp      = string
@@ -198,8 +199,9 @@ variable "project_config" {
       load     = "lod"
       orc      = "orc"
       trf      = "trf"
-      dwh-lnd  = "dwh-lnd"
-      dwh-cur  = "dwh-cur"
+      dwh-bronze  = "dwh-bronze"
+      dwh-silver  = "dwh-silver"
+      dwh-gold  = "dwh-gold"
       dwh-conf = "dwh-conf"
       common   = "cmn"
       exp      = "exp"

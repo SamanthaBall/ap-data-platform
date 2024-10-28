@@ -89,7 +89,7 @@ module "transf-sa-df-0" {
   }
 }
 
-module "transf-cs-df-0" {
+module "transf-gcs-df-0" {
   source         = "../../../modules/gcs"
   project_id     = module.transf-project.project_id
   prefix         = var.prefix
