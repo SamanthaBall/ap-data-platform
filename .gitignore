@@ -2,6 +2,7 @@ venv/*
 **/.venv/*
 */venv/*
 **/.env
+**/data/*
 **/.python-version
 **/.terraform
 **/terraform.tfstate*
