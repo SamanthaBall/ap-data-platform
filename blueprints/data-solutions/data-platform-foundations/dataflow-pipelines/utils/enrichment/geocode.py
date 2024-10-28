@@ -54,7 +54,7 @@ COUNTRY_NAMES =  [
 
 class FuzzyMatchLocation(beam.DoFn):
     def process(self, element):
-        location = element.get('location', '')
+        location = element.get('userLocation', '')
         if not location:
             yield {**element, 'country': ""}
             return
