@@ -1,20 +1,20 @@
 {
-  "image": "gcr.io/[YOUR_PROJECT_ID]/your-beam-pipeline:latest",
+  "image": "gcr.io/[YOUR_PROJECT_ID]/twitter-bronze-to-silver:latest",
   "metadata": {
-    "name": "YourPipelineFlexTemplate",
-    "description": "Flex Template for running your Apache Beam pipeline",
+    "name": "TwitterBronzeToSilverTemplate",
+    "description": "Flex Template for running the Twitter bronze to silver pipeline",
     "parameters": [
       {
         "name": "inputFile",
         "label": "Input File Path",
         "helpText": "Path to the input file in GCS",
-        "defaultValue": "gs://your-bucket/input-data/"
+        "defaultValue": "gs://bronze/twitter/"
       },
       {
         "name": "outputFile",
         "label": "Output File Path",
         "helpText": "Path to write the output in GCS",
-        "defaultValue": "gs://your-bucket/output-data/"
+        "defaultValue": "gs://silver/twitter/"
       }
     ]
   }

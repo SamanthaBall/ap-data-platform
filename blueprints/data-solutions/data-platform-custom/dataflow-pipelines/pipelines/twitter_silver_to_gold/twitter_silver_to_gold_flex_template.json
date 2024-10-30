@@ -1,20 +1,20 @@
 {
-  "image": "gcr.io/[YOUR_PROJECT_ID]/your-beam-pipeline:latest",
+  "image": "gcr.io/${PROJECT_ID}/twitter-silver-to-gold:latest",
   "metadata": {
-    "name": "YourPipelineFlexTemplate",
-    "description": "Flex Template for running your Apache Beam pipeline",
+    "name": "TwitterSilverToGoldTemplate",
+    "description": "Flex Template for transforming Twitter data from Parquet in silver to BigQuery in gold",
     "parameters": [
       {
         "name": "inputFile",
-        "label": "Input File Path",
-        "helpText": "Path to the input file in GCS",
-        "defaultValue": "gs://your-bucket/input-data/"
+        "label": "Input Parquet File Path",
+        "helpText": "Path to the input Parquet file in GCS",
+        "defaultValue": "gs://silver/twitter/"
       },
       {
-        "name": "outputFile",
-        "label": "Output File Path",
-        "helpText": "Path to write the output in GCS",
-        "defaultValue": "gs://your-bucket/output-data/"
+        "name": "outputTable",
+        "label": "Output BigQuery Table",
+        "helpText": "BigQuery table to write the output data",
+        "defaultValue": "your_project_id.gold.twitterUsers"
       }
     ]
   }
