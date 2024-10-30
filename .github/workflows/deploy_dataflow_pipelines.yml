@@ -1,0 +1,52 @@
+name: Flex Template CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'pipelines/twitter_bronze_to_silver/**'
+      - 'pipelines/twitter_silver_to_gold/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pipeline:
+          - twitter_bronze_to_silver
+          - twitter_silver_to_gold
+    if: contains(github.event.head_commit.message, matrix.pipeline)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Build Docker image
+        run: docker build -t gcr.io/your-project-id/${{ matrix.pipeline }}:latest ./pipelines/${{ matrix.pipeline }}
+
+      - name: Run tests
+        run: pytest ./tests/${{ matrix.pipeline }}/
+
+      - name: Push Docker image to GCR
+        run: docker push gcr.io/your-project-id/${{ matrix.pipeline }}:latest
+
+      - name: Create Flex Template Spec and Upload to GCS
+        run: |
+          echo '{
+            "image": "gcr.io/your-project-id/${{ matrix.pipeline }}:latest",
+            "sdk_info": {"language": "PYTHON"},
+            "metadata": {
+              "name": "${{ matrix.pipeline }}",
+              "description": "Dataflow Flex Template for ${{ matrix.pipeline }}"
+            }
+          }' > template_spec.json
+          gsutil cp template_spec.json gs://your-template-bucket/${{ matrix.pipeline }}-spec.json
