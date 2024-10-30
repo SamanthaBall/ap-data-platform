@@ -1,5 +1,5 @@
 {
-  "image": "gcr.io/[YOUR_PROJECT_ID]/twitter-bronze-to-silver:latest",
+  "image": "gcr.io/${YOUR_PROJECT_ID}/twitter-bronze-to-silver:latest",
   "metadata": {
     "name": "TwitterBronzeToSilverTemplate",
     "description": "Flex Template for running the Twitter bronze to silver pipeline",
