@@ -8,4 +8,4 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 # Specify the entrypoint for your pipeline
-ENTRYPOINT ["python", "twitter_bronze_to_silver_v1.py"]
+ENTRYPOINT ["python", "twitter_silver_to_gold_v1.py"]
