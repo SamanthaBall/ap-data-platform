@@ -1,0 +1,21 @@
+{
+  "image": "gcr.io/[YOUR_PROJECT_ID]/your-beam-pipeline:latest",
+  "metadata": {
+    "name": "YourPipelineFlexTemplate",
+    "description": "Flex Template for running your Apache Beam pipeline",
+    "parameters": [
+      {
+        "name": "inputFile",
+        "label": "Input File Path",
+        "helpText": "Path to the input file in GCS",
+        "defaultValue": "gs://your-bucket/input-data/"
+      },
+      {
+        "name": "outputFile",
+        "label": "Output File Path",
+        "helpText": "Path to write the output in GCS",
+        "defaultValue": "gs://your-bucket/output-data/"
+      }
+    ]
+  }
+}
