@@ -1,5 +1,6 @@
 import apache_beam as beam
 import json
+import os
 from utils.cleaning.clean import DropIrrelevantFields, SelectFields, clean_text, filter_retweets
 #from utils.enrichment.enrich import enrich_user_profile
 #from utils.enrichment.geocode import FuzzyMatchLocation, GeocodeLocation
@@ -49,7 +50,7 @@ def format_for_csv(record):
 
 options = PipelineOptions(
     runner='DataflowRunner',
-    project='ap-test-project-439007',
+    project=os.getenv('PROJECT_ID'),
     #job_name='unique-job-name',
     temp_location='gs://ap-twitter/tmp/',
     staging_location='gs://ap-twitter/staging/',
