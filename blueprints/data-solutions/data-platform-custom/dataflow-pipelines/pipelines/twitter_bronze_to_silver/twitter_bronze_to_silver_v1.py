@@ -6,23 +6,13 @@ from utils.cleaning.clean import DropIrrelevantFields, SelectFields, clean_text,
 #from utils.enrichment.geocode import FuzzyMatchLocation, GeocodeLocation
 #from utils.flattening.flatten import flatten
 #from utils.transformation.transform import transform_tweet
-from apache_beam.options.pipeline_options import PipelineOptions, StandardOptions, WorkerOptions
-#import pyarrow as pa
+from apache_beam.options.pipeline_options import PipelineOptions
+import pyarrow as pa
 
 
 fields_to_remove = ['type', 'entities', 'extendedEntities', 'twitterUrl', 'author', 'media']
 
 selected_fields = ['id', 'url'] #userName, userDescription
-
-
-def limit_print_count(count):
-    def _limit_print(element):
-        nonlocal count
-        if count < 5:  # Limit to 5 prints
-            print(element)
-            count += 1
-        return element
-    return _limit_print
 
 
 def debug_data(element):
@@ -31,40 +21,26 @@ def debug_data(element):
 
 
 def format_for_csv(record):
-    #print(record)
     return f"{record['id']},{record['url']}"
 
 
-# # Define the schema using pyarrow
-# schema = pa.schema([
-#     pa.field('id', pa.string(), nullable=True),
-#     pa.field('userName', pa.string(), nullable=True),
-#     #pa.field('userDescription', pa.string()),
-# ])
+# Define the schema using pyarrow
+schema = pa.schema([
+    pa.field('id', pa.string(), nullable=True),
+    pa.field('url', pa.string(), nullable=True),
+    #pa.field('userDescription', pa.string()),
+])
 
 
-
-# options = PipelineOptions()
-# options.view_as(StandardOptions).runner = 'DirectRunner'
-# options.view_as(WorkerOptions).temp_location = 'C:\\Users\\SamanthaBall\\OneDrive - SYNTHESIS SOFTWARE TECHNOLOGIES (PTY) LTD\\Documents\\ap-data-platform\\blueprints\\data-solutions\\data-platform-custom\\dataflow-pipelines\\temp'
-
-options = PipelineOptions(
-    runner='DataflowRunner',
-    project=os.getenv('PROJECT_ID'),
-    #job_name='unique-job-name',
-    temp_location='gs://ap-twitter/tmp/',
-    staging_location='gs://ap-twitter/staging/',
-    region='europe-west1'
-    #streaming = False
-    )
-
-with beam.Pipeline(options=options) as p:
+with beam.Pipeline(options=PipelineOptions()) as p:
+    
+    input_path_gcp = 'gs://ap-twitter/input/dataset_tweet-scraper_2024-03-04_15-52-13-507_delimited.json'
+    input_path = 'data/dataset_tweet-scraper_2024-03-04_15-52-13-507_delimited.json'
     
     # Step 1: Ingest data
-    tweets = p | 'ReadFromSource' >> beam.io.ReadFromText('gs://ap-twitter/input/dataset_tweet-scraper_2024-03-04_15-52-13-507_delimited.json')
+    tweets = p | 'ReadFromSource' >> beam.io.ReadFromText(input_path)
     tweets_json = tweets | 'Parse JSON' >> beam.Map(json.loads)
-    
-    #count = 0
+
 
     # Group 1: Data Cleaning
     cleaned_tweets = (
@@ -72,12 +48,56 @@ with beam.Pipeline(options=options) as p:
         #| 'DropDuplicatesById' >> beam.Distinct(key=lambda x: x['id'])
         #| 'FlattenJson' >> beam.ParDo(flatten())
         #| 'DropIrrelevantFields' >>  beam.ParDo(DropIrrelevantFields(fields_to_remove))
-        | 'Select Fields' >> beam.ParDo(SelectFields(selected_fields))
         #| 'Clean Text' >> beam.Map(clean_text)
         #| 'Filter Retweets' >> beam.Filter(filter_retweets)
+         | 'Select Fields' >> beam.ParDo(SelectFields(selected_fields))
     )
 
-    # Group 2: Data Enrichment
+    # formatted_tweets  = cleaned_tweets | 'Format for CSV' >> beam.Map(format_for_csv) # seems like they are all in one list
+    # #formatted_tweets |'Inspect Data' >> beam.Map(debug_data)
+    # output_path_gcp =  'gs://ap-twitter/output'
+    # output_path = 'output/output'
+    # formatted_tweets  | 'Write to CSV' >> beam.io.WriteToText(output_path, file_name_suffix='.csv', header='id,url')
+
+    # Step 4: Output the data in Parquet
+    output_path = "output/twitter_output.parquet"
+    cleaned_tweets | 'WriteToSink' >> beam.io.WriteToParquet(output_path, schema=schema) # change back to transformed_tweets
+  
+
+
+
+
+
+# def limit_print_count(count):
+#     def _limit_print(element):
+#         nonlocal count
+#         if count < 5:  # Limit to 5 prints
+#             print(element)
+#             count += 1
+#         return element
+#     return _limit_print
+
+
+
+# options = PipelineOptions(
+#     runner='DataflowRunner',
+#     project=os.getenv("PROJECT_ID"),
+#     #job_name='unique-job-name',
+#     temp_location='gs://ap-twitter/staging/',
+#     staging_location='gs://ap-twitter/staging/',
+#     region='europe-west1'
+#     #streaming = False
+#     )
+
+
+# options = PipelineOptions(
+#     runner='DirectRunner',
+#     temp_location='C:\\Users\\SamanthaBall\\OneDrive - SYNTHESIS SOFTWARE TECHNOLOGIES (PTY) LTD\\Documents\\ap-data-platform\\blueprints\\data-solutions\\data-platform-custom\\dataflow-pipelines\\temp',
+#     staging_location='C:\\Users\\SamanthaBall\\OneDrive - SYNTHESIS SOFTWARE TECHNOLOGIES (PTY) LTD\\Documents\\ap-data-platform\\blueprints\\data-solutions\\data-platform-custom\\dataflow-pipelines\\temp',
+#     )
+
+
+ # Group 2: Data Enrichment
     #enriched_tweets = (
         #cleaned_tweets 
         #| 'Fuzzy Match Locations' >> beam.ParDo(FuzzyMatchLocation())  # Step 1: Fuzzy match
@@ -105,8 +125,3 @@ with beam.Pipeline(options=options) as p:
     # does this write to one or many files?
     #sampled_tweets | 'WriteToSink' >> beam.io.WriteToParquet(output_path, schema=schema) # change back to transformed_tweets
     #sampled_tweets | 'WriteToText' >> beam.io.WriteToText('output/output_file', file_name_suffix='.txt', num_shards=1)
-
-    formatted_tweets  = cleaned_tweets | 'Format for CSV' >> beam.Map(format_for_csv) # seems like they are all in one list
-    #formatted_tweets |'Inspect Data' >> beam.Map(debug_data)
-    output_path =  'gs://ap-twitter/output'
-    formatted_tweets  | 'Write to CSV' >> beam.io.WriteToText(output_path, file_name_suffix='.csv', header='id,url',)
