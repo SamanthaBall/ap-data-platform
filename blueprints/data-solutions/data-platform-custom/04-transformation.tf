@@ -95,7 +95,18 @@ module "transf-gcs-df-0" {
   prefix         = var.prefix
   name           = "trf-cs-0"
   location       = var.location
-  storage_class  = "MULTI_REGIONAL"
+  storage_class  = "STANDARD"
+  encryption_key = var.service_encryption_keys.storage
+  force_destroy  = !var.deletion_protection
+}
+
+module "dp-pipelines-gcs-0" {
+  source         = "../../../modules/gcs"
+  project_id     = module.trf-project.project_id
+  prefix         = var.prefix
+  name           = "dataproc-pipelines"
+  location       = var.region
+  storage_class  = "STANDARD"
   encryption_key = var.service_encryption_keys.storage
   force_destroy  = !var.deletion_protection
 }
