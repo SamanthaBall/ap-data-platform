@@ -1,19 +1,21 @@
-import functions_framework
+import os
 from google.cloud import dataproc_v1
 
-@functions_framework.http
 def trigger_dataproc_job(request):
+    # Read environment variables
+    project_id = os.environ.get('PROJECT_ID')  # Access the PROJECT_ID variable
+    region = os.environ.get('REGION')          # Access the REGION variable
+
     client = dataproc_v1.JobControllerClient()
-    project_id = "<your_project_id>"
-    region = "<your_region>"
+
+    # Define your PySpark job
     job = {
         "placement": {
             "cluster_name": None  # Not needed for serverless jobs
         },
-        "spark_job": {
-            "main_class": "org.apache.spark.examples.SparkPi",
-            "jar_file_uris": ["gs://<your_bucket>/jars/your-spark-job.jar"],
-            "args": ["1000"],
+        "pyspark_job": {
+            "main_python_file_uri": "gs://dp-pipelines-gcs-0/twitter_bronze_to_silver_v1.py",  # Path to your PySpark script
+            #"args": ["arg1", "arg2"],  # Add input and output here
         },
         "dataproc_serverless_config": {
             "machine_type": "n1-standard-4",
@@ -21,5 +23,7 @@ def trigger_dataproc_job(request):
         }
     }
 
+    # Submit the job
     result = client.submit_job(project_id=project_id, region=region, job=job)
     return f"Job submitted: {result.reference.job_id}"
+
