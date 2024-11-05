@@ -104,7 +104,7 @@ module "dp-pipelines-gcs-0" {
   source         = "../../../modules/gcs"
   project_id     = module.trf-project.project_id
   prefix         = var.prefix
-  name           = "dataproc-pipelines"
+  name           = "dp-pipelines-gcs-0"
   location       = var.region
   storage_class  = "STANDARD"
   encryption_key = var.service_encryption_keys.storage
