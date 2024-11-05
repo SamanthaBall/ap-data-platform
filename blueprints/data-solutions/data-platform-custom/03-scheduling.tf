@@ -20,13 +20,33 @@ module "cf-trigger-dataproc" {
   name        = "cf-trigger-dataproc"
   bucket_name = module.cloud-functions-gcs-0.name
   bundle_config = {
-    path = "cloud-functions/twitter/bronze_to_silver.py"
+    path = "cloud-functions/dataproc/twitter/bronze_to_silver.py"
   }
   environment_variables = {
     PROJECT_ID = module.orch-project.project_id
     REGION     = var.region
   }
 }
+
+
+
+module "cf-trigger-dataflow" {
+  source      = "../../../modules/cloud-function-v2"
+  project_id  = module.orch-project.project_id
+  region      = var.region
+  name        = "cf-trigger-dataflow"
+  bucket_name = module.cloud-functions-gcs-0.name
+  bundle_config = {
+    path = "cloud-functions/dataflow/twitter/bronze_to_silver.py"
+  }
+  environment_variables = {
+    PROJECT_ID = module.orch-project.project_id
+    REGION     = var.region
+    TEMPLATE_PATH = "gs://transf-gcs-df-0/twitter_bronze_to_silver_flex_template.json"
+  }
+}
+
+
 
 # module "cf-http-two" {
 #   source      = "../../../modules/cloud-function-v2"
