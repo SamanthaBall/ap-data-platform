@@ -1,7 +1,6 @@
 import apache_beam as beam
 import os
-from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions, SetupOptions
-import pyarrow.parquet as pq
+from apache_beam.options.pipeline_options import PipelineOptions
 from dotenv import load_dotenv
 
 load_dotenv()
