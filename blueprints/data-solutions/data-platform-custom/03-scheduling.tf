@@ -22,6 +22,10 @@ module "cf-trigger-dataproc" {
   bundle_config = {
     path = "cloud-functions/twitter/bronze_to_silver.py"
   }
+  environment_variables = {
+    PROJECT_ID = module.orch-project.project_id
+    REGION     = var.region
+  }
 }
 
 # module "cf-http-two" {
