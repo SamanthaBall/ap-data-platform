@@ -3,6 +3,7 @@ import json
 import os
 from utils.cleaning.clean import DropIrrelevantFields, SelectFields, clean_text, filter_retweets
 from apache_beam.options.pipeline_options import PipelineOptions
+from logging.logs import log_info, log_error
 import pyarrow as pa
 
 
@@ -58,6 +59,7 @@ with beam.Pipeline(options=PipelineOptions()) as p:
     # Step 4: Output the data in Parquet
     output_path = "output/twitter_output.parquet"
     cleaned_tweets | 'WriteToSink' >> beam.io.WriteToParquet(output_path, schema=schema) # change back to transformed_tweets
+    log_info("Data written to parquet.")
   
 
 

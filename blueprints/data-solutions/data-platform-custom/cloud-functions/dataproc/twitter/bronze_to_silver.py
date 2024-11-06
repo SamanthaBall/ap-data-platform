@@ -1,10 +1,13 @@
 import os
 from google.cloud import dataproc_v1
+from logging.logs import log_info, log_error
 
 def trigger_dataproc_job(request):
-    # Read environment variables
-    project_id = os.environ.get('PROJECT_ID')  # Access the PROJECT_ID variable
-    region = os.environ.get('REGION')          # Access the REGION variable
+
+    log_info("Starting Dataflow pipeline trigger")
+
+    project_id = os.environ.get('PROJECT_ID')  
+    region = os.environ.get('REGION')        
 
     client = dataproc_v1.JobControllerClient()
 
@@ -25,5 +28,6 @@ def trigger_dataproc_job(request):
 
     # Submit the job
     result = client.submit_job(project_id=project_id, region=region, job=job)
+    log_info("Dataproc job submitted", job_id=result.job_id)
     return f"Job submitted: {result.reference.job_id}"
 
