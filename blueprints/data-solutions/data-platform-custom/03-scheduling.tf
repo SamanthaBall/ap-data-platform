@@ -29,6 +29,35 @@ module "cf-trigger-dataproc" {
 }
 
 
+resource "google_cloud_scheduler_job" "dataproc_trigger" {
+  name             = "trigger-dataproc-job"
+  description      = "Scheduler to trigger Dataproc job Cloud Function"
+  schedule         = var.schedule  # Example: "0 3 * * *" for 3 AM UTC daily
+  time_zone        = "UTC"         # Adjust based on your time zone preference
+
+  http_target {
+    http_method = "POST"
+    uri         = module.cf-trigger-dataproc.url  # URL of your Cloud Function
+
+    oidc_token {
+      service_account_email = var.scheduler_service_account_email
+    }
+  }
+}
+
+variable "schedule" {
+  description = "Cron schedule for the Cloud Scheduler job"
+  type        = string
+  default     = "0 3 * * *"  # Default: 3 AM UTC daily
+}
+
+variable "scheduler_service_account_email" {
+  description = "Service account email used by Cloud Scheduler for authorization"
+  type        = string
+}
+
+
+
 
 module "cf-trigger-dataflow" {
   source      = "../../../modules/cloud-function-v2"
