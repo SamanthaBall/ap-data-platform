@@ -20,7 +20,7 @@ module "cf-trigger-dataproc" {
   name        = "cf-trigger-dataproc"
   bucket_name = module.cloud-functions-gcs-0.name
   bundle_config = {
-    path = "cloud-functions/dataproc/twitter/bronze_to_silver.py"
+    path = "./cloud-functions/dataproc/twitter_bronze_to_silver/"
   }
   environment_variables = {
     PROJECT_ID = module.orch-project.project_id
@@ -29,32 +29,32 @@ module "cf-trigger-dataproc" {
 }
 
 
-resource "google_cloud_scheduler_job" "dataproc_trigger" {
-  name             = "trigger-dataproc-job"
-  description      = "Scheduler to trigger Dataproc job Cloud Function"
-  schedule         = var.schedule  # Example: "0 3 * * *" for 3 AM UTC daily
-  time_zone        = "UTC"         # Adjust based on your time zone preference
+# resource "google_cloud_scheduler_job" "dataproc_trigger" {
+#   name             = "trigger-dataproc-job"
+#   description      = "Scheduler to trigger Dataproc job Cloud Function"
+#   schedule         = var.schedule  # Example: "0 3 * * *" for 3 AM UTC daily
+#   time_zone        = "UTC"         # Adjust based on your time zone preference
 
-  http_target {
-    http_method = "POST"
-    uri         = module.cf-trigger-dataproc.url  # URL of your Cloud Function
+#   http_target {
+#     http_method = "POST"
+#     uri         = module.cf-trigger-dataproc.url  # URL of your Cloud Function
 
-    oidc_token {
-      service_account_email = var.scheduler_service_account_email
-    }
-  }
-}
+#     oidc_token {
+#       service_account_email = var.scheduler_service_account_email
+#     }
+#   }
+# }
 
-variable "schedule" {
-  description = "Cron schedule for the Cloud Scheduler job"
-  type        = string
-  default     = "0 3 * * *"  # Default: 3 AM UTC daily
-}
+# variable "schedule" {
+#   description = "Cron schedule for the Cloud Scheduler job"
+#   type        = string
+#   default     = "0 3 * * *"  # Default: 3 AM UTC daily
+# }
 
-variable "scheduler_service_account_email" {
-  description = "Service account email used by Cloud Scheduler for authorization"
-  type        = string
-}
+# variable "scheduler_service_account_email" {
+#   description = "Service account email used by Cloud Scheduler for authorization"
+#   type        = string
+# }
 
 
 
@@ -66,7 +66,7 @@ module "cf-trigger-dataflow" {
   name        = "cf-trigger-dataflow"
   bucket_name = module.cloud-functions-gcs-0.name
   bundle_config = {
-    path = "cloud-functions/dataflow/twitter/bronze_to_silver.py"
+    path = "./cloud-functions/dataflow/twitter_bronze_to_silver/"
   }
   environment_variables = {
     PROJECT_ID = module.orch-project.project_id

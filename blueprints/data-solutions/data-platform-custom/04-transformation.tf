@@ -102,7 +102,7 @@ module "transf-gcs-df-0" {
 
 module "dp-pipelines-gcs-0" {
   source         = "../../../modules/gcs"
-  project_id     = module.trf-project.project_id
+  project_id     = module.transf-project.project_id
   prefix         = var.prefix
   name           = "dp-pipelines-gcs-0"
   location       = var.region
