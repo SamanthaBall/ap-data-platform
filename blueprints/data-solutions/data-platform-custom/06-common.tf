@@ -73,6 +73,75 @@ module "common-datacatalog" {
   tags       = var.data_catalog_tags
 }
 
+
+# Example: Defining data assets
+
+resource "google_data_catalog_entry_group" "data_lakehouse_group" {
+  project = module.common-project.project_id
+  region = var.region
+  entry_group_id = "data_lakehouse"
+  display_name = "Data Lakehouse Assets"
+}
+
+resource "google_data_catalog_entry" "data_lakehouse_entry" {
+  entry_group = google_data_catalog_entry_group.data_lakehouse_group.id
+  entry_id = "bronze_layer"
+  type = "DATA_STREAM"
+  display_name = "Bronze Layer - Raw Data"
+  gcs_fileset_spec {
+    file_patterns = ["gs://bronze_layer_bucket/*"]
+  }
+}
+
+
+# Example DLP scan for bronze
+
+resource "google_data_loss_prevention_job_trigger" "dlp_bronze_layer" {
+  parent = "projects/my-project-name"
+  description = "Description"
+  #job_id = "dlp_inspect_bronze_layer"
+  display_name = "DLP Scan - Bronze Layer"
+  
+  inspect_job {
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://bronze_layer_bucket/*"
+        }
+      }
+    }
+
+    inspect_config {
+      info_types { name = ["EMAIL_ADDRESS", "PHONE_NUMBER", "CREDIT_CARD_NUMBER", "SOCIAL_SECURITY_NUMBER"]}
+      min_likelihood = "POSSIBLE"
+      limits {
+        max_findings_per_request = 100
+      }
+    }
+
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = module.common-project.project_id
+            dataset_id = "dlp_results"
+            table_id   = "bronze_layer_findings"
+          }
+        }
+      }
+    }
+  }
+
+  triggers{
+     schedule {
+    recurrence_period_duration = "604800s"  # Weekly
+  }
+  }
+
+}
+
+
+
 # To create KMS keys in the common project: uncomment this section
 # and assign key links accondingly in local.service_encryption_keys variable
 
